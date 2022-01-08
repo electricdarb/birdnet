@@ -67,7 +67,7 @@ def main():
         metrics = METRICS
         )
 
-    runname = utils.make_runname('lrfind')
+    runname = utils.make_runname('base_frozen')
 
     history = model.fit(train_gen, 
         validation_data = val_gen,
