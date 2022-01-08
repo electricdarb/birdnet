@@ -8,18 +8,14 @@ CLASSES = 200
 
 BATCH_SIZE = 64
 TARGET_SIZE = (256, 256)
-EPOCHS = 15
+EPOCHS = 30
 
 # optimizer 
 MOMENTUM = .9
 INIT_LR = 0.005
 OPT = tf.keras.optimizers.SGD(INIT_LR, momentum = MOMENTUM)
 
-def scheduler(epoch, lr):
-    return 1e-7 * 10 ** (6 * epoch/EPOCHS)
-
-LR_CB = tf.keras.callbacks.LearningRateScheduler(scheduler)
-#LR_CB = tf.keras.callbacks.ReduceLROnPlateau('val_loss', factor = .3, patience = 4, verbose = 1, min_lr = INIT_LR/100)
+LR_CB = tf.keras.callbacks.ReduceLROnPlateau('val_loss', factor = .3, patience = 3, verbose = 1, min_lr = INIT_LR/100)
 
 # loss
 LABEL_SMOOTHING = 0.1
@@ -37,7 +33,7 @@ METRICS = [
 CALLBACKS = [LR_CB]
 
 def main():
-    model = utils.load_model('base_frozen_220108051125')
+    model = utils.load_model('base_frozen_220108171850')
 
     model.layers[1].trainable = True
 
@@ -67,7 +63,7 @@ def main():
         metrics = METRICS
         )
 
-    runname = utils.make_runname('base_frozen')
+    runname = utils.make_runname('finetuned')
 
     history = model.fit(train_gen, 
         validation_data = val_gen,
