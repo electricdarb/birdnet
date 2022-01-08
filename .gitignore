@@ -1,9 +1,6 @@
-/cub200data/*
-/cub200data
-/CONFIG.py
-/attributes.txt
-/arrangedata.py
-/*.h5
-/__pycache__
-/modellogs
-/modellogs/*
+/*
+!/downloaddata.py
+!/train.py
+!/utils.py
+!/eval*
+!/preprocess.py
