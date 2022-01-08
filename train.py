@@ -15,17 +15,14 @@ MOMENTUM = .9
 INIT_LR = 1e-6
 OPT = tf.keras.optimizers.SGD(INIT_LR, momentum = MOMENTUM)
 
-def lr_scheduler(epoch, lr):
-    return 1e-6 ** (6 * epoch/EPOCHS)
-
-LR_CB = tf.keras.callbacks.LearningRateScheduler(lr_scheduler)
+LR_CB = tf.keras.callbacks.ReduceLROnPlateau('val_loss', factor = .3, patience = 2, verbose = 1, min_lr = INIT_LR/100)
 
 # loss
 LABEL_SMOOTHING = 0.0
 LOSS = tf.keras.losses.CategoricalCrossentropy(label_smoothing = LABEL_SMOOTHING)
 
 METRICS = [
-    tf.keras.metrics.Accuracy(),
+    tf.keras.metrics.CategoricalAccuracy(),
     tf.keras.metrics.Recall(),
     tf.keras.metrics.Precision()
 ]
@@ -34,6 +31,7 @@ CALLBACKS = [LR_CB]
 
 def main():
     base_model = tf.keras.applications.Xception(classes = CLASSES, weights = "imagenet", include_top = False)
+
     inputs = tf.keras.Input(shape=(*TARGET_SIZE, 3))
     x = base_model(inputs, training = False)
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
@@ -42,10 +40,10 @@ def main():
 
     train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
         rescale = 1./255,
-        #rotation_range = 15,
-        #height_shift_range = .1,
-        #zoom_range = .1,
-        #horizontal_flip = True,
+        rotation_range = 15,
+        height_shift_range = .1,
+        zoom_range = .1,
+        horizontal_flip = True,
     )
 
     test_datagen = train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
@@ -60,13 +58,16 @@ def main():
         metrics = METRICS
         )
 
-    runname = utils.make_runname('test')
-    utils.save_model(runname, model)
-    model = utils.load_model(runname)
+    runname = utils.make_runname('init')
 
     history = model.fit(train_gen, 
         validation_data = val_gen,
-        epochs = EPOCHS)
+        epochs = EPOCHS, 
+        callbacks = CALLBACKS)
+    
+    utils.log_history(history)
+    utils.save_model(runname)
+    print(f'run name: {runname}')
 
 if __name__ == "__main__":
     main()
