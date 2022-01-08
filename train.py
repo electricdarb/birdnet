@@ -43,7 +43,7 @@ def main():
     inputs = tf.keras.Input(shape=(*TARGET_SIZE, 3))
     x = base_model(inputs, training = False)
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
-    x = tf.keras.layers.Dropout(DROPOUT_RATE)
+    x = tf.keras.layers.Dropout(DROPOUT_RATE)(x)
     outputs = tf.keras.layers.Dense(CLASSES, activation = 'softmax')(x)
     model = tf.keras.Model(inputs, outputs)
 
