@@ -8,7 +8,7 @@ CLASSES = 200
 
 BATCH_SIZE = 64
 TARGET_SIZE = (256, 256)
-EPOCHS = 20
+EPOCHS = 15
 
 # optimizer 
 MOMENTUM = .9
@@ -16,10 +16,10 @@ INIT_LR = 0.005
 OPT = tf.keras.optimizers.SGD(INIT_LR, momentum = MOMENTUM)
 
 def scheduler(epoch, lr):
-    return 1e-7 * 10 ** (7 * epoch/EPOCHS)
+    return 1e-7 * 10 ** (6 * epoch/EPOCHS)
 
-#LR_CB = tf.keras.callbacks.LearningRateScheduler(scheduler)
-LR_CB = tf.keras.callbacks.ReduceLROnPlateau('val_loss', factor = .3, patience = 4, verbose = 1, min_lr = INIT_LR/100)
+LR_CB = tf.keras.callbacks.LearningRateScheduler(scheduler)
+#LR_CB = tf.keras.callbacks.ReduceLROnPlateau('val_loss', factor = .3, patience = 4, verbose = 1, min_lr = INIT_LR/100)
 
 # loss
 LABEL_SMOOTHING = 0.1
@@ -37,15 +37,9 @@ METRICS = [
 CALLBACKS = [LR_CB]
 
 def main():
-    base_model = tf.keras.applications.Xception(classes = CLASSES, weights = "imagenet", include_top = False)
-    base_model.trainable = False
+    model = utils.load_model('base_frozen_220108051125')
 
-    inputs = tf.keras.Input(shape=(*TARGET_SIZE, 3))
-    x = base_model(inputs)
-    x = tf.keras.layers.GlobalAveragePooling2D()(x)
-    x = tf.keras.layers.Dropout(DROPOUT_RATE)(x)
-    outputs = tf.keras.layers.Dense(CLASSES, activation = 'softmax')(x)
-    model = tf.keras.Model(inputs, outputs)
+    model.layers[1].trainable = True
 
     for layer in model.layers[1].layers:
         if isinstance(layer, (tf.keras.layers.Conv2D, tf.keras.layers.SeparableConv2D)): # check if it a conv layer and add dropout
@@ -61,7 +55,7 @@ def main():
         horizontal_flip = True,
     )
 
-    test_datagen = train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+    test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
         rescale = 1./255
     )
 
