@@ -8,11 +8,11 @@ CLASSES = 200
 
 BATCH_SIZE = 64
 TARGET_SIZE = (256, 256)
-EPOCHS = 64
+EPOCHS = 40
 
 # optimizer 
 MOMENTUM = .9
-INIT_LR = 1e-6
+INIT_LR = 0.005
 OPT = tf.keras.optimizers.SGD(INIT_LR, momentum = MOMENTUM)
 
 LR_CB = tf.keras.callbacks.ReduceLROnPlateau('val_loss', factor = .3, patience = 2, verbose = 1, min_lr = INIT_LR/100)
