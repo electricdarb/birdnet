@@ -12,7 +12,7 @@ EPOCHS = 20
 
 # optimizer 
 MOMENTUM = .9
-INIT_LR = 1e-6
+INIT_LR = 0.005
 OPT = tf.keras.optimizers.SGD(INIT_LR, momentum = MOMENTUM)
 
 LR_CB = tf.keras.callbacks.ReduceLROnPlateau('val_loss', factor = .3, patience = 4, verbose = 1, min_lr = INIT_LR/100)
