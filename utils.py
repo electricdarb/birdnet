@@ -30,13 +30,16 @@ def load_model(runname, bucketname = 'bradfordgillbirddatabucket', foldername = 
     from tensorflow.keras.models import load_model
 
     filename = f'{runname}.h5'
-    path = os.path.join(foldername, filename)
+    path = f'{foldername}/{filename}'
 
     if not os.path.exists(path):
+        if not os.path.exists(foldername):
+            os.mkdir(foldername)
         session = boto3.Session(
                 aws_access_key_id=KEY_ID,
                 aws_secret_access_key=SECRET_KEY)
         s3 = session.resource('s3')
+
         results = s3.Bucket(bucketname).download_file(path, path)
 
     return load_model(path)
@@ -64,7 +67,6 @@ def get_history(runname,  bucketname = 'bradfordgillbirddatabucket', foldername 
     if not os.path.exists(path):
         if not os.path.exists(foldername):
             os.mkdir(foldername)
-
         session = boto3.Session(
                 aws_access_key_id=KEY_ID,
                 aws_secret_access_key=SECRET_KEY)

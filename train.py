@@ -1,4 +1,5 @@
 import tensorflow as tf
+from preprocess import preprocessing_fn
 import utils
 
 TRAIN_DIR = './cub200data/CUB_200_2011/train'
@@ -15,10 +16,10 @@ MOMENTUM = .9
 INIT_LR = 0.005
 OPT = tf.keras.optimizers.SGD(INIT_LR, momentum = MOMENTUM)
 
-LR_CB = tf.keras.callbacks.ReduceLROnPlateau('val_loss', factor = .3, patience = 3, verbose = 1, min_lr = INIT_LR/100)
+LR_CB = tf.keras.callbacks.ReduceLROnPlateau('val_loss', factor = .3, patience = 2, verbose = 1, min_lr = INIT_LR/100)
 
 # loss
-LABEL_SMOOTHING = 0.1
+LABEL_SMOOTHING = 0.05
 LOSS = tf.keras.losses.CategoricalCrossentropy(label_smoothing = LABEL_SMOOTHING)
 WEIGHT_DECAY = 1e-5 
 
@@ -46,13 +47,15 @@ def main():
     train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
         rescale = 1./255,
         rotation_range = 15,
-        height_shift_range = .1,
+        height_shift_range = .2,
+        width_shift_range = .2,
         zoom_range = .1,
         horizontal_flip = True,
+        preprocessing_function = preprocessing_fn
     )
 
     test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
-        rescale = 1./255
+        rescale = 1./255,
     )
 
     train_gen = train_datagen.flow_from_directory(TRAIN_DIR, batch_size = BATCH_SIZE, target_size = TARGET_SIZE)
